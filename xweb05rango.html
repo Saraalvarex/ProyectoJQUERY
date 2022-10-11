@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img {
+            width: 150px;
+            height: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Generar controles</h1>
+    <input type="range" id="rango" min="1" max="14" value="1"/>
+    <p id="valorrango">1</p>
+    <div id="capa"></div>
+    <script src="js/jquery-3.6.1.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            
+            $("#rango").change(function(){
+                
+                let valorRango = $("#rango").val();
+                $("#valorrango").text(valorRango);
+                /*LIMPIAR IMAGENES*/
+                $("#capa").text("");
+                for (let i=0; i<=valorRango; i++){
+                    let imagen  = $("<img>");
+                    imagen.attr("src", "images/img1.jfif");
+                    $("div").append(imagen);
+                    /*hijo --> padre
+                    imagen.appendTo(("#padre"));*/
+                }
+                $("img").click(function(){
+                    $(this).attr("src", "images/img2.jpeg");
+                });
+            });
+        });
+
+    </script>
+</body> 
+</html>
