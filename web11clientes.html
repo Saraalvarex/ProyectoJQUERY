@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img {
+            height: 300px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="cajabotones"></div>
+    <br>
+    <table id="cajaInfo">
+        <thead>
+            <tr>
+                <th>NOMBRE</th>
+                <th>DIRECCION</th>
+                <th>EMAIL</th>
+                <th>CODIGO POSTAL</th>
+                <th>PAGINA WEB</th>
+                <th>IMAGEN CLIENTE</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <!--2 get uno al cargar y otro al pulsar que dibuje el cliente-->
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        
+        // Debemos dibujar tantos botones 
+        // como clientes tenemos en el documento
+        $.get("documents/ClientesXML.xml", function(data){
+            let numClientes = $(data).find("CLIENTE").length;
+            console.log(numClientes);
+            //Recuperamos cada etiqueta cliente
+            for (let i=0; i<numClientes; i++){
+                //Crear botones
+                let boton = $("<button>");
+                //RECOJO CADA NOMBRE DE CLIENTE
+                let nombre = $(data).find("NOMBRE").eq(i).text();
+                //ASIGNO CADA NOMBRE A 1 BOTON
+                boton.text(nombre);
+                
+                $("#cajabotones").append(boton);
+            }
+
+            $("button").click(function(){
+                //Recuperamos nombre del cliente del botón
+                let nombreBoton = ($(this).text());
+                console.log(nombreBoton);
+                //}
+                $.get("documents/ClientesXML.xml", function(data){
+                    var filtro = "NOMBRE:contains(" + nombreBoton + ")";
+                    var html = "";
+                    console.log("Leyendo servicio...");
+                    //Capturamos el nodo del cliente
+                    //RECORREMOS LOS DATOS
+                    $(data).find(filtro).each(function() {
+                        var nodopadre = $(this).parent();
+                        var nombre = $(nodopadre).find("NOMBRE").text();
+                        var direccion = $(nodopadre).find("DIRECCION").text();
+                        var email = $(nodopadre).find("EMAIL").text();
+                        var codigopostal = $(nodopadre).find("CODIGOPOSTAL").text();
+                        var paginaweb = $(nodopadre).find("PAGINAWEB").text();
+                        var srcimagen = $(nodopadre).find("IMAGENCLIENTE").text();
+                        
+                        html += "<tr>";
+                        html += "<td>" + nombre + "</td>";
+                        html += "<td>" + direccion + "</td>";
+                        html += "<td>" + email + "</td>";
+                        html += "<td>" + codigopostal + "</td>";
+                        html += "<td><a href='" + paginaweb + "'>"+paginaweb+"</a></td>";
+                        html += "<td><img src='"+srcimagen+"'/></td>";
+                        html += "</tr>";
+                    });
+                    $("#cajaInfo tbody").html(html);
+                });
+
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
