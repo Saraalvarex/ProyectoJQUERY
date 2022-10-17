@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Ejemplo CRUD Hospital</h1>
+    <table border="1" id="tablahospitales">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Direccion</th>
+                <th>Teléfono</th>
+                <th>Camas</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <br>
+    
+    <table border="1" id="tablatexto">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Direccion</th>
+                <th>Teléfono</th>
+                <th>Camas</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        let url = "https://apicrudhospital.azurewebsites.net/";
+
+        function cargarHospitales(){
+            let request = "/webresources/hospitales";
+            $.ajax({
+                "url": url+request,
+                "method": "GET",
+                "dataType": "json",
+                success: function(data){
+                    console.log("cargando hospitales...")
+                    //en vez de let html = "";
+                    $("#tablahospitales tbody").text("");
+                    $.each(data, function(indice, hospital){
+                        //Creo fila
+                        var fila = $("<tr>");
+                        //Creo columna id, nombre, direcc, tlf y camas
+                        var colId = $("<td>", {"class": "colId", "data-id": hospital.idhospital,"text": hospital.idhospital})
+                        var colNombre = $("<td>", {"text": hospital.nombre});
+                        var colDirec = $("<td>", { "text": hospital.direccion});
+                        var colTlf = $("<td>", { "text": hospital.telefono});
+                        var colCamas = $("<td>", { "text": hospital.camas});
+                        
+                        //Añado cols a fila
+                        fila.append(colId);
+                        fila.append(colNombre);
+                        fila.append(colDirec);
+                        fila.append(colTlf);
+                        fila.append(colCamas);
+
+                        //Creo columna botones
+                        let colAccion1 = $("<td>");
+                        fila.append(colAccion1);
+                        let colAccion2 = $("<td>");
+                        fila.append(colAccion2);
+                        let botonEliminar = $("<button>", {"text": "Eliminar "+ hospital.nombre, "value": hospital.idhospital,});
+                        let botonEditar = $("<button>",
+                            {"text": "Editar "+ hospital.nombre, "value": hospital.idhospital, "data-nombre": hospital.nombre,
+                             "data-direc": hospital.direccion, "data-tlf": hospital.telefono, "data-camas": hospital.camas});
+
+                        //Añado a colAccion los botones
+                        colAccion1.append(botonEliminar);
+                        colAccion2.append(botonEditar);
+                        $("#tablahospitales tbody").append(fila);
+
+                        botonEliminar.click(function() {
+                            let idHospital = $(this).val();
+                            let requestEl = "/webresources/hospitales/delete/"+idHospital;
+                            $.ajax({
+                                "url": url+requestEl,
+                                "type": "DELETE",
+                                success: function(){
+                                        console.log("Eliminado");
+                                        //cargarHospitales();
+                                }
+                            });
+                        });
+
+                        botonEditar.click(function() {
+                            let idHospital = $(this).val();
+                            let nombreHospital = $(this).data("nombre");
+                            let direcHospital = $(this).data("direc");
+                            let tlfHospital = $(this).data("tlf");
+                            let camasHospital = $(this).data("camas");
+
+                            $("#tablatexto tbody").text("");
+                            
+                            //Creo fila
+                            var fila = $("<tr>");
+                            //Creo inputs
+                            let inputId = $("<input>", {"id": "inputId" ,"value": idHospital});
+                            //Atributo de desabilitado
+                            inputId.attr("disabled","disabled");
+                            
+                            let inputNom = $("<input>", {"id": "inputNom", "value": nombreHospital});
+                            let inputDirecc = $("<input>", {"id": "inputDir", "value": direcHospital});
+                            let inputTlf = $("<input>", {"id": "inputTlf", "value": tlfHospital});
+                            let inputCamas = $("<input>", {"id": "inputCamas", "value": camasHospital});
+                            //Creo columnas
+                            var colId = $("<td>");
+                            var colNombre = $("<td>");
+                            var colDirec = $("<td>");
+                            var colTlf = $("<td>");
+                            var colCamas = $("<td>");
+                            var colBoton = $("<td>");
+                            //Añado inputs a cols
+                            colId.append(inputId);
+                            colNombre.append(inputNom);
+                            colDirec.append(inputDirecc);
+                            colTlf.append(inputTlf);
+                            colCamas.append(inputCamas);
+                            //Añado cols a fila
+                            fila.append(colId);
+                            fila.append(colNombre);
+                            fila.append(colDirec);
+                            fila.append(colTlf);
+                            fila.append(colCamas);
+                            
+                            fila.append(colBoton);
+                            let botonModificar = $("<button>", {"text": "Modificar", "id": "botonModificar" });
+                            //Añado a colAccion los botones
+                            colBoton.append(botonModificar);
+                            // $("#inputId").prop("disabled")==true;
+                            // console.log($("#inputId").prop("disabled"));
+                            $("#tablatexto tbody").append(fila);
+
+                            $("#botonModificar").click(function(){
+                                //Creamos un nuevo objeto JS
+                                
+                                let hospital = new Object();
+                                //Las propiedades deben coincidir con el servicio
+                                hospital.idhospital = parseInt($("#inputId").val());
+                                hospital.nombre = ($("#inputNom").val());
+                                hospital.direccion = ($("#inputDir").val());
+                                hospital.telefono = ($("#inputTlf").val());
+                                hospital.camas = ($("#inputCamas").val());
+
+                                let dataJson= JSON.stringify(hospital);
+                                //Las propiedades deben coincidir con el servicio
+                                console.log(dataJson);
+                                let requestPut = "webresources/hospitales/put";
+                                console.log(dataJson);
+                                $.ajax({
+                                    "url": url+requestPut,
+                                    "type": "PUT",
+                                    "data": dataJson,
+                                    "contentType": "application/json",
+                                    success: function(){-
+                                        console.log("Modificado");
+                                        cargarHospitales();
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function(){
+            cargarHospitales();
+        });
+    </script>
+</body>
+</html>
